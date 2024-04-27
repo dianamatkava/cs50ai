@@ -1,1 +1,4 @@
 venv
+.ide
+.DB_Store
+__pycache__
