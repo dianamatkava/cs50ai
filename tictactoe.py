@@ -1,7 +1,7 @@
 """
 Tic Tac Toe Player
 """
-
+import copy
 import math
 
 X = "X"
@@ -26,9 +26,6 @@ def player(board):
     for line in board:
         count += len(list(filter(None, line)))
 
-    if len(board) ** 2 == count:
-        return None
-
     return X if count % 2 == 0 else O
 
 
@@ -49,7 +46,7 @@ def result(board, action):
     Returns the board that results from making move (i, j) on the board.
     """
 
-    res_board = board.copy()
+    res_board = copy.deepcopy(board)
     if action is None:
         raise ValueError
     res_board[action[0]][action[1]] = player(board)
@@ -96,19 +93,46 @@ def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    return 1 if winner(board) == X else -1
+    if winner(board) == X: return 1
+    elif winner(board) == O: return -1
+    return 0
+
+
+def max_value(board) -> int:
+    value = -math.inf
+    if terminal(board):
+        return utility(board)
+
+    actions_ = actions(board)
+    for action in actions_:
+        value = max(value, min_value(result(board, action)))
+    return value
+
+
+def min_value(board) -> int:
+    value = math.inf
+    if terminal(board):
+        return utility(board)
+
+    actions_ = actions(board)
+    for action in actions_:
+        value = min(value, max_value(result(board, action)))
+
+    return value
 
 
 def minimax(board):
     """
-    Returns the optimal action for the current player on the board.
+    Returns the optimal action for the AI player.
     """
-    # If the board is a terminal board, the minimax function should return None
-    if terminal:
+
+    if terminal(board):
         return None
 
-    for line_idx, line in enumerate(board):
-        for cell_idx, cell in enumerate(line):
-            if cell == EMPTY:
-                return (line_idx, cell_idx)
+    score = []
+    actions_ = actions(board)
+    for action in actions_:
+        score.append([max_value(result(board, action)), action])
+    return sorted(score, key=lambda x: x[0], reverse=True)[0][1]
+
 
