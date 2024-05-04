@@ -1,4 +1,4 @@
 venv
-.ide
+.idea
 .DB_Store
 __pycache__
