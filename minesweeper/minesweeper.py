@@ -120,15 +120,16 @@ class Sentence():
         """
         raise NotImplementedError
 
-    def mark_safe(self, cell):
+    def mark_safe(self, cell) -> None:
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        raise NotImplementedError
+        self.cells.remove(cell)
+        self.cells.add((*cell[], True))
 
 
-class MinesweeperAI():
+class MinesweeperAI:
     """
     Minesweeper game player
     """
@@ -165,6 +166,7 @@ class MinesweeperAI():
         """
         self.safes.add(cell)
         for sentence in self.knowledge:
+            print(cell, sentence.cells)
             sentence.mark_safe(cell)
 
     def add_knowledge(self, cell, count):
@@ -182,7 +184,15 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-        raise NotImplementedError
+
+        self.mark_safe(cell)
+        self.moves_made.add(cell)
+        if count == 0:
+            [self.mark_safe(c) for c in self.get_nearby_cells(*cell)]
+
+        self.knowledge.append(
+            Sentence(cells=self.get_nearby_cells(*cell), count=count)
+        )
 
     def make_safe_move(self):
         """
@@ -203,3 +213,13 @@ class MinesweeperAI():
             2) are not known to be mines
         """
         raise NotImplementedError
+
+    @staticmethod
+    def get_nearby_cells(x, y) -> set:
+        nearby_cells = set()
+        for i in [-1, 0, 1]:
+            if x - i >= 0:
+                for j in [-1, 0, 1]:
+                    if y - j >= 0 and (x - i, y - j) != (x, y):
+                        nearby_cells.add((x - i, y - j, None))
+        return nearby_cells
