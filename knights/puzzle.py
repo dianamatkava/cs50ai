@@ -33,15 +33,21 @@ knowledge0 = And(
 # A says "We are both knaves."
 # B says nothing.
 knowledge1 = And(
-    Implication(AKnight, And(AKnight, AKnave)),
-    Implication(AKnave, Not(And(AKnight, AKnave))),
+knowledge,
+    Implication(AKnight, And(AKnave, BKnave)),
+    Implication(AKnave, Not(And(AKnave, BKnave))),
 )
 
 # Puzzle 2
 # A says "We are the same kind."
 # B says "We are of different kinds."
 knowledge2 = And(
-    # TODO
+knowledge,
+    Implication(AKnight, And(AKnight, BKnight)),
+    Implication(AKnave, Not(And(AKnight, BKnight))),
+
+    Implication(BKnight, And(AKnave, BKnight)),
+    Implication(BKnave, And(AKnight, BKnight)),
 )
 
 # Puzzle 3
@@ -50,7 +56,17 @@ knowledge2 = And(
 # B says "C is a knave."
 # C says "A is a knight."
 knowledge3 = And(
-    # TODO
+    knowledge,
+    Implication(AKnight, Or(AKnave, AKnight)),
+    Implication(AKnave, Not(Or(AKnave, AKnight))),
+
+    Implication(BKnight, Implication(AKnight, And(AKnave))),
+    Implication(BKnave, Implication(AKnight, Not(And(AKnave)))),
+
+    Implication(BKnight, And(CKnave)),
+    Implication(BKnave, Not(And(CKnave))),
+    Implication(CKnight, And(AKnight)),
+    Implication(CKnave, Not(And(AKnight))),
 )
 
 
@@ -58,9 +74,9 @@ def main():
     symbols = [AKnight, AKnave, BKnight, BKnave, CKnight, CKnave]
     puzzles = [
         ("Puzzle 0", knowledge0),
-        # ("Puzzle 1", knowledge1),
-        # ("Puzzle 2", knowledge2),
-        # ("Puzzle 3", knowledge3)
+        ("Puzzle 1", knowledge1),
+        ("Puzzle 2", knowledge2),
+        ("Puzzle 3", knowledge3)
     ]
     for puzzle, knowledge in puzzles:
         print(puzzle)
