@@ -105,28 +105,46 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        raise NotImplementedError
+        res = set()
+        for x, y, status in self.cells:
+            if status is False:
+                res.add((x, y))
+        return res
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        raise NotImplementedError
+        res = set()
+        for x, y, status in self.cells:
+            if status:
+                res.add((x, y))
+        return res
 
     def mark_mine(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        raise NotImplementedError
+        if cell not in self.cells:
+            return
+        self.cells.remove(cell)
+        self.cells.add((*cell[:2], False))
 
     def mark_safe(self, cell) -> None:
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
+        if cell not in self.cells:
+            return
+
         self.cells.remove(cell)
-        self.cells.add((*cell[], True))
+        if self.count != 0 and self.count == len(self.cells) - len(self.known_safes()):
+            for cell in self.cells:
+                self.mark_mine(cell)
+
+        self.cells.add((*cell[:2], True))
 
 
 class MinesweeperAI:
@@ -155,7 +173,7 @@ class MinesweeperAI:
         Marks a cell as a mine, and updates all knowledge
         to mark that cell as a mine as well.
         """
-        self.mines.add(cell)
+        self.mines.add(cell[:2])
         for sentence in self.knowledge:
             sentence.mark_mine(cell)
 
@@ -164,9 +182,8 @@ class MinesweeperAI:
         Marks a cell as safe, and updates all knowledge
         to mark that cell as safe as well.
         """
-        self.safes.add(cell)
+        self.safes.add(cell[:2])
         for sentence in self.knowledge:
-            print(cell, sentence.cells)
             sentence.mark_safe(cell)
 
     def add_knowledge(self, cell, count):
@@ -185,11 +202,14 @@ class MinesweeperAI:
                if they can be inferred from existing knowledge
         """
 
-        self.mark_safe(cell)
         self.moves_made.add(cell)
+
+        cell = (*cell, None)
+        self.mark_safe(cell)
         if count == 0:
             [self.mark_safe(c) for c in self.get_nearby_cells(*cell)]
 
+        print(f"Added {cell=} with {count=} to the AI's knowledge base.'")
         self.knowledge.append(
             Sentence(cells=self.get_nearby_cells(*cell), count=count)
         )
@@ -215,7 +235,7 @@ class MinesweeperAI:
         raise NotImplementedError
 
     @staticmethod
-    def get_nearby_cells(x, y) -> set:
+    def get_nearby_cells(x, y, *_) -> set:
         nearby_cells = set()
         for i in [-1, 0, 1]:
             if x - i >= 0:
