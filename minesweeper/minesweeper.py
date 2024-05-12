@@ -131,7 +131,7 @@ class Sentence():
         self.cells.remove(cell)
         self.cells.add((*cell[:2], False))
 
-    def mark_safe(self, cell) -> None:
+    def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
@@ -140,11 +140,11 @@ class Sentence():
             return
 
         self.cells.remove(cell)
-        if self.count != 0 and self.count == len(self.cells) - len(self.known_safes()):
+        self.cells.add((*cell[:2], True))
+        if self.count == len(self.cells) - len(self.known_safes()):
             for cell in self.cells:
                 self.mark_mine(cell)
-
-        self.cells.add((*cell[:2], True))
+        return list(self.known_mines()), list(self.known_safes())
 
 
 class MinesweeperAI:
@@ -184,7 +184,9 @@ class MinesweeperAI:
         """
         self.safes.add(cell[:2])
         for sentence in self.knowledge:
-            sentence.mark_safe(cell)
+            mines, safes = sentence.mark_safe(cell)
+            self.mines.add(*mines)
+            self.safes.add(*safes)
 
     def add_knowledge(self, cell, count):
         """
