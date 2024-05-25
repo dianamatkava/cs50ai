@@ -5,8 +5,10 @@ Minesweeper game implemented with `pygame`, offering both solo play and the opti
 
 ## Features:
 
-**Solo Play**: Enjoy the classic Minesweeper game experience by playing solo.
-**AI Player**: Watch the AI player in action as it uses propositional logic to make decisions.
+![Minesweeper Game](./assets/minesweepers.gif)
+
+- **Solo Play**: Enjoy the classic Minesweeper game experience by playing solo.
+- **AI Player**: Watch the AI player in action as it uses propositional logic to make decisions.
 
 ## Implementation
 The game implementation utilizes **Propositional Logic** for intelligent decision-making.
