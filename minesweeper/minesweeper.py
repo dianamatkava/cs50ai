@@ -1,8 +1,7 @@
-import itertools
 import random
 
 
-class Minesweeper():
+class Minesweeper:
     """
     Minesweeper game representation
     """
@@ -49,8 +48,11 @@ class Minesweeper():
         print("--" * self.width + "-")
 
     def is_mine(self, cell):
-        i, j = cell
-        return self.board[i][j]
+        try:
+            i, j = cell
+            return self.board[i][j]
+        except IndexError:
+            print()
 
     def nearby_mines(self, cell):
         """
@@ -95,56 +97,44 @@ class Sentence():
         self.cells = set(cells)
         self.count = count
 
+    def __str__(self):
+        return f"{self.cells} : {self.count}"
+
     def __eq__(self, other):
         return self.cells == other.cells and self.count == other.count
-
-    def __str__(self):
-        return f"{self.cells} = {self.count}"
 
     def known_mines(self):
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        res = set()
-        for x, y, status in self.cells:
-            if status is False:
-                res.add((x, y))
-        return res
+        if len(self.cells) == self.count and self.count != 0:
+            return self.cells
+        return set()
 
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        res = set()
-        for x, y, status in self.cells:
-            if status:
-                res.add((x, y))
-        return res
+        if self.count == 0:
+            return self.cells
+        return set()
 
     def mark_mine(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        if cell not in self.cells:
-            return
-        self.cells.remove(cell)
-        self.cells.add((*cell[:2], False))
+        if cell in self.cells:
+            self.cells.remove(cell)
+            self.count -= 1
 
     def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        if cell not in self.cells:
-            return
-
-        self.cells.remove(cell)
-        self.cells.add((*cell[:2], True))
-        if self.count == len(self.cells) - len(self.known_safes()):
-            for cell in self.cells:
-                self.mark_mine(cell)
-        return list(self.known_mines()), list(self.known_safes())
+        if cell in self.cells:
+            self.cells.remove(cell)
 
 
 class MinesweeperAI:
@@ -173,7 +163,7 @@ class MinesweeperAI:
         Marks a cell as a mine, and updates all knowledge
         to mark that cell as a mine as well.
         """
-        self.mines.add(cell[:2])
+        self.mines.add(cell)
         for sentence in self.knowledge:
             sentence.mark_mine(cell)
 
@@ -182,13 +172,12 @@ class MinesweeperAI:
         Marks a cell as safe, and updates all knowledge
         to mark that cell as safe as well.
         """
-        self.safes.add(cell[:2])
+        self.safes.add(cell)
         for sentence in self.knowledge:
-            mines, safes = sentence.mark_safe(cell)
-            self.mines.add(*mines)
-            self.safes.add(*safes)
+            sentence.mark_safe(cell)
 
     def add_knowledge(self, cell, count):
+        print('Update KB....')
         """
         Called when the Minesweeper board tells us, for a given
         safe cell, how many neighboring cells have mines in them.
@@ -204,17 +193,39 @@ class MinesweeperAI:
                if they can be inferred from existing knowledge
         """
 
+        # Mark the cell as a move that has been made
         self.moves_made.add(cell)
 
-        cell = (*cell, None)
+        # Mark the cell as safe
         self.mark_safe(cell)
+
+        # Quick check if all neighbors are safe
         if count == 0:
             [self.mark_safe(c) for c in self.get_nearby_cells(*cell)]
+        else:
+            # Add cell and all neighbors to the AI's knowledge base
+            self.knowledge.append(
+                Sentence(cells=self.get_nearby_cells(*cell), count=count)
+            )
 
-        print(f"Added {cell=} with {count=} to the AI's knowledge base.'")
-        self.knowledge.append(
-            Sentence(cells=self.get_nearby_cells(*cell), count=count)
-        )
+        for knowledge in self.knowledge:
+
+            # Infer mines from Sentences
+            if len(knowledge.cells) == knowledge.count + len(knowledge.known_safes()) and knowledge.count != 0:
+                for cell in knowledge.cells.copy():
+                    if cell is None: self.mark_mine(cell)
+
+            # Mark safes from historical moves
+            for cell in knowledge.cells.copy():
+                if cell in self.moves_made:
+                    self.mark_safe(cell)
+                if cell in self.mines:
+                    self.mark_mine(cell)
+                # if neighbor is in known safes mark it in KB
+                if cell in self.safes:
+                    self.mark_safe(cell)
+
+
 
     def make_safe_move(self):
         """
@@ -225,23 +236,29 @@ class MinesweeperAI:
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        raise NotImplementedError
 
-    def make_random_move(self):
+        choices = list(self.safes - self.moves_made)
+        return choices[0] if choices else None
+
+    def make_random_move(self) -> tuple:
         """
-        Returns a move to make on the Minesweeper board.
+        Returns a move to make on the Minesweepers board.
         Should choose randomly among cells that:
             1) have not already been chosen, and
             2) are not known to be mines
         """
-        raise NotImplementedError
 
-    @staticmethod
-    def get_nearby_cells(x, y, *_) -> set:
+        while True:
+            x = random.randint(0, self.width - 1)
+            y = random.randint(0, self.height - 1)
+            if (x, y) not in {*self.moves_made, *self.mines}:
+                return x, y
+
+    def get_nearby_cells(self, x, y, *_) -> set:
         nearby_cells = set()
         for i in [-1, 0, 1]:
-            if x - i >= 0:
+            if 0 <= x - i < self.width:
                 for j in [-1, 0, 1]:
-                    if y - j >= 0 and (x - i, y - j) != (x, y):
-                        nearby_cells.add((x - i, y - j, None))
+                    if 0 <= y - j < self.height and (x - i, y - j) != (x, y):
+                        nearby_cells.add((x - i, y - j))
         return nearby_cells
