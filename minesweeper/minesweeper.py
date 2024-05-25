@@ -199,14 +199,26 @@ class MinesweeperAI:
         # Mark the cell as safe
         self.mark_safe(cell)
 
+        neighbors = self.get_nearby_cells(*cell)
+
         # Quick check if all neighbors are safe
         if count == 0:
-            [self.mark_safe(c) for c in self.get_nearby_cells(*cell)]
+            [self.mark_safe(c) for c in neighbors]
         else:
-            # Add cell and all neighbors to the AI's knowledge base
             self.knowledge.append(
-                Sentence(cells=self.get_nearby_cells(*cell), count=count)
+                Sentence(cells=neighbors, count=count)
             )
+
+        count_mines = 0
+        nearby_cells = set()
+
+        for neighbor in neighbors:
+            if neighbor in self.mines:
+                count_mines += 1
+            if neighbor not in self.safes and neighbor not in self.mines:
+                nearby_cells.add(neighbor)
+
+        new_sentence = Sentence(cells=nearby_cells, count=count_mines)
 
         for knowledge in self.knowledge:
 
@@ -225,7 +237,13 @@ class MinesweeperAI:
                 if cell in self.safes:
                     self.mark_safe(cell)
 
-
+        # Find Subsets
+        for sentence in self.knowledge:
+            if new_sentence.cells.issubset(sentence.cells) \
+                    and count > 0 and new_sentence.count > 0\
+                    and new_sentence.cells != sentence.cells:
+                new_subset = sentence.cells.difference(new_sentence.cells)
+                self.knowledge.append(Sentence(cells=new_subset, count=sentence.count - new_sentence.count))
 
     def make_safe_move(self):
         """
