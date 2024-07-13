@@ -16,3 +16,11 @@
 In the first part of formula we calculate probability that the page can be randomly selected by a surfer considering the damping factor `d`. 
 For the second part, we need to consider each possible page `i` that links to page `p`. For each of those incoming pages, let `NumLinks(i)` be the number of links on page `i`. Each page `i` that links to `p` has its own PageRank, `PR(i)`, representing the probability that we are on page `i` at any given time. And since from page `i` we travel to any of that page’s links with equal probability, we divide `PR(i)` by the number of links `NumLinks(i)` to get the probability that we were on page `i` and chose the link to page `p`.
 
+
+## Sample PageRank
+
+- Initialize a Random Start: Start by selecting a page at random from the corpus.
+- Transition Model: Use the transition_model function to get the probabilities for the next page based on the current page.
+- Generate Samples: For each sample (after the first one), use the transition model to determine the next page.
+- Count Visits: Keep track of the number of times each page is visited.
+- Normalize Counts: Normalize counts proportionally
