@@ -11,7 +11,6 @@ def main():
     if len(sys.argv) != 2:
         sys.exit("Usage: python Google PageRank.py corpus")
     corpus = crawl(sys.argv[1])
-    # corpus = crawl('corpus0')
     ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
@@ -104,15 +103,20 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
+    N = len(corpus)
+    pagerank = {page: 1 / N for page in corpus}
 
-    pageranks = {key: (1 - damping_factor) / len(corpus) for key in corpus}
+    while True:
+        new_pagerank = {}
+        for p in corpus:
+            link_sum = sum(pagerank[i] / len(corpus[i]) for i in corpus if p in corpus[i])
+            new_pagerank[p] = (1 - damping_factor) / N + damping_factor * link_sum
 
-    for page in pageranks.keys():
+        diff = sum(abs(new_pagerank[p] - pagerank[p]) for p in corpus)
+        if diff < 1e-6:
+            break
 
+        pagerank = new_pagerank
 
-def rank_page():
-    pass
+    return new_pagerank
 
-
-if __name__ == "__main__":
-    main()
