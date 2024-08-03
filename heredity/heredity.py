@@ -180,30 +180,30 @@ def joint_probability(people, one_gene, two_genes, have_trait):
 
             if n_genes == 0:
                 prob *= (
-                        (f2 * m3) +  # Father passes gene & mutates, Mother does not pass gene & does not mutate
-                        (f2 * m2) +  # Father passes gene & mutates, Mother passes gene & mutates
-                        (f3 * m2) +  # Father does not pass gene & does not mutate, Mother passes gene & mutates
-                        (f3 * m3)    # Father does not pass gene & does not mutate, Mother does not pass gene & does not mutate
+                    (f2 * m3) +  # Father passes gene & mutates, Mother does not pass gene & does not mutate
+                    (f2 * m2) +  # Father passes gene & mutates, Mother passes gene & mutates
+                    (f3 * m2) +  # Father does not pass gene & does not mutate, Mother passes gene & mutates
+                    (f3 * m3)    # Father does not pass gene & does not mutate, Mother does not pass gene & does not mutate
                 )
 
             elif n_genes == 1:
                 prob *= (
-                        (f1 * m3) +  # Father passes gene & does not mutate, Mother does not pass gene & does not mutate
-                        (f1 * m2) +  # Father passes gene & does not mutate, Mother passes gene & mutates
-                        (f2 * m3) +  # Father passes gene & mutates, Mother does not pass gene & does not mutate
-                        (f2 * m1) +  # Father passes gene & mutates, Mother passes gene & does not mutate
-                        (f3 * m1) +  # Father does not pass gene & does not mutate, Mother passes gene & does not mutate
-                        (f3 * m2) +  # Father does not pass gene & does not mutate, Mother passes gene & mutates
-                        (f4 * m1) +  # Father does not pass gene & mutates, Mother passes gene & does not mutate
-                        (f4 * m2)    # Father does not pass gene & mutates, Mother passes gene & mutates
+                    (f1 * m3) +  # Father passes gene & does not mutate, Mother does not pass gene & does not mutate
+                    (f1 * m2) +  # Father passes gene & does not mutate, Mother passes gene & mutates
+                    (f2 * m3) +  # Father passes gene & mutates, Mother does not pass gene & does not mutate
+                    (f2 * m1) +  # Father passes gene & mutates, Mother passes gene & does not mutate
+                    (f3 * m1) +  # Father does not pass gene & does not mutate, Mother passes gene & does not mutate
+                    (f3 * m2) +  # Father does not pass gene & does not mutate, Mother passes gene & mutates
+                    (f4 * m1) +  # Father does not pass gene & mutates, Mother passes gene & does not mutate
+                    (f4 * m2)    # Father does not pass gene & mutates, Mother passes gene & mutates
                 )
 
             elif n_genes == 2:
                 prob *= (
-                        (f1 * m1) +  # Father passes gene & does not mutate, Mother passes gene & does not mutate
-                        (f2 * m4) +  # Father passes gene & mutates, Mother does not pass gene & mutates
-                        (f3 * m1) +  # Father does not pass gene & does not mutate, Mother passes gene & does not mutate
-                        (f4 * m4)    # Father does not pass gene & mutates, Mother passes gene & mutates
+                    (f1 * m1) +  # Father passes gene & does not mutate, Mother passes gene & does not mutate
+                    (f2 * m4) +  # Father passes gene & mutates, Mother does not pass gene & mutates
+                    (f3 * m1) +  # Father does not pass gene & does not mutate, Mother passes gene & does not mutate
+                    (f4 * m4)    # Father does not pass gene & mutates, Mother passes gene & mutates
                 )
 
             # Calculate trait probability
