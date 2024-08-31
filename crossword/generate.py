@@ -114,7 +114,15 @@ class CrosswordCreator():
         Return True if a revision was made to the domain of `x`; return
         False if no revision was made.
         """
-        raise NotImplementedError
+
+        revise = False
+        overlaps = self.crossword.overlaps[x, y]
+        for _x in self.domains[x].copy():
+            if _x[overlaps[0]] in [node[overlaps[1]] for node in self.domains[y]]:
+                self.domains[x].remove(_x)
+                revise = True
+
+        return revise
 
     def ac3(self, arcs=None) -> bool:
         """
@@ -125,7 +133,27 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        raise NotImplementedError
+
+        if arcs is None:
+            arcs = self.get_arcs()
+
+        while len(arcs) > 0:
+            x, y = arcs.pop(0)
+            if self.revise(x, y):
+                if len(self.domains[x]):
+                    return False
+
+        return True
+
+    def get_arcs(self) -> list:
+        """Create initial arcs with all possible arcs based on the binary constraints"""
+
+        arcs = []
+        for node in self.domains:
+            for neighbor in self.crossword.neighbors(node):
+                arcs.append((node, neighbor))
+
+        return arcs
 
     def assignment_complete(self, assignment) -> bool:
         """
