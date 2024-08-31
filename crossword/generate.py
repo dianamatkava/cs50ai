@@ -99,9 +99,13 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
 
-    def revise(self, x, y):
+        for node, words in self.domains.items():
+            for word in words.copy():
+                if len(word) != node.length:
+                    self.domains[node].remove(word)
+
+    def revise(self, x, y) -> bool:
         """
         Make variable `x` arc consistent with variable `y`.
         To do so, remove values from `self.domains[x]` for which there is no
@@ -112,7 +116,7 @@ class CrosswordCreator():
         """
         raise NotImplementedError
 
-    def ac3(self, arcs=None):
+    def ac3(self, arcs=None) -> bool:
         """
         Update `self.domains` such that each variable is arc consistent.
         If `arcs` is None, begin with initial list of all arcs in the problem.
@@ -123,14 +127,14 @@ class CrosswordCreator():
         """
         raise NotImplementedError
 
-    def assignment_complete(self, assignment):
+    def assignment_complete(self, assignment) -> bool:
         """
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
         raise NotImplementedError
 
-    def consistent(self, assignment):
+    def consistent(self, assignment) -> bool:
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
@@ -156,7 +160,7 @@ class CrosswordCreator():
         """
         raise NotImplementedError
 
-    def backtrack(self, assignment):
+    def backtrack(self, assignment) -> dict:
         """
         Using Backtracking Search, take as input a partial assignment for the
         crossword and return a complete assignment if possible to do so.
@@ -194,4 +198,6 @@ def main():
 
 
 if __name__ == "__main__":
+    sys.argv.append('./data/structure0.txt')
+    sys.argv.append('./data/words0.txt')
     main()
