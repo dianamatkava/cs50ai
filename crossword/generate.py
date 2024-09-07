@@ -118,7 +118,7 @@ class CrosswordCreator():
         revise = False
         overlaps = self.crossword.overlaps[x, y]
         for _x in self.domains[x].copy():
-            if _x[overlaps[0]] in [node[overlaps[1]] for node in self.domains[y]]:
+            if _x[overlaps[0]] not in [node[overlaps[1]] for node in self.domains[y]]:
                 self.domains[x].remove(_x)
                 revise = True
 
@@ -160,8 +160,8 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        for item in assignment.values():
-            if len(item) != 1:
+        for var in self.domains.keys():
+            if var not in assignment:
                 return False
         return True
 
@@ -170,37 +170,39 @@ class CrosswordCreator():
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
+        status = True
 
+        if len(assignment) < 2:
+            return status
+
+        # compare first variable with next
         for var in assignment.keys():
-            neighbors = list(self.crossword.neighbors(var))
-            for neighbor_var in neighbors:
-                neighbor_values = assignment[neighbor_var]
+            for var_other in assignment.keys():
+                if var == var_other:
+                    continue
 
-                if var.direction == Variable.DOWN:
-                    for assignment_value in assignment[var]:
-                        for neighbor_value in neighbor_values:
-                            if assignment_value[neighbor_var.i] != neighbor_value[var.i]:
-                                return False
+                # get cross indexes
+                indexes = self.crossword.overlaps[var, var_other]
+                if not indexes:
+                    continue
+                else:
+                    cross_index_1, cross_index_2 = indexes
 
-                if var.direction == Variable.ACROSS:
-                    for assignment_value in assignment[var]:
-                        for neighbor_value in neighbor_values:
-                            if assignment_value[neighbor_var.j] != neighbor_value[var.j]:
-                                return False
-        return True
+                match = []
+                for val_index, val in enumerate(assignment[var]):
+                    for val_other in assignment[var_other]:
+                        try:
+                            if val[cross_index_1] != val_other[cross_index_1]:
+                                status = False
+                            else:
+                                match.append(val)
+                        except:
+                            return False
 
-    @staticmethod
-    def get_cross_indexes(direction, var, neighbor_var) -> tuple:
-        neighbor_index, var_index = 0, 0
-        if direction == Variable.DOWN:
-            neighbor_index = neighbor_var.i
-            var_index = var.i
+                    if not match:
+                        assignment[var].pop(val_index)
 
-        if direction == Variable.ACROSS:
-            neighbor_index = neighbor_var.j
-            var_index = var.j
-
-        return neighbor_index, var_index
+        return status
 
     def order_domain_values(self, var, assignment) -> list:
         """
@@ -210,21 +212,17 @@ class CrosswordCreator():
         that rules out the fewest values among the neighbors of `var`.
         """
 
-        neighbors = list(self.crossword.neighbors(var))
-
         order_data = {}
-        for neighbor_var in neighbors:
-            neighbor_values = assignment[neighbor_var]
+        for val in self.domains[var]:
 
-            neighbor_index, var_index = self.get_cross_indexes(var.direction, var, neighbor_var)
+            for other_var in self.crossword.neighbors(var):
+                for other_val in self.domains[other_var]:
 
-            for assignment_value in assignment[var]:
-                for neighbor_value in neighbor_values:
-                    if assignment_value[neighbor_index] == neighbor_value[var_index]:
-                        order_data[assignment_value] = order_data.get(assignment_value, 0) + 1
+                    neighbor_index, var_index = self.crossword.overlaps[var, other_var]
+                    if val[neighbor_index] != other_val[var_index]:
+                        order_data[val] = order_data.get(val, 0) - 1
 
         return [key for key, value in sorted(order_data.items(), key=lambda item: item[1])]
-
 
     def select_unassigned_variable(self, assignment):
         """
@@ -232,12 +230,17 @@ class CrosswordCreator():
         Choose the variable with the minimum number of remaining values
         in its domain. If there is a tie, choose the variable with the highest
         degree. If there is a tie, any of the tied variables are acceptable
-        return values.
+        return values.x
         """
 
-        for key, item in assignment.items():
-            if len(item) != 1:
-                return key
+        unassigned_variables = set(self.domains.keys()) - set(assignment.keys())
+
+        values_num = {}
+        for var in unassigned_variables:
+            values_num[var] = len(self.domains[var])
+
+        # return the variable with the fewest number of remaining values in its domain.
+        return [key for key, value in sorted(values_num.items(), key=lambda value: value[1])][0]
 
     def backtrack(self, assignment) -> dict | None:
         """
@@ -249,9 +252,6 @@ class CrosswordCreator():
         If no assignment is possible, return None.
         """
 
-        if not assignment:
-            assignment = self.domains
-
         if self.assignment_complete(assignment):
             if self.consistent(assignment):
                 return assignment
@@ -259,9 +259,13 @@ class CrosswordCreator():
                 return None
 
         variable = self.select_unassigned_variable(assignment)
-        self.order_domain_values(variable, assignment)
+        domain_values = self.order_domain_values(variable, assignment)
+        assignment[variable] = domain_values
 
-        return self.backtrack(assignment)
+        if not self.consistent(assignment):
+            del assignment[variable]
+
+        self.backtrack(assignment)
 
 
 def main():
@@ -290,6 +294,6 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.argv.append('./data/structure0.txt')
-    sys.argv.append('./data/words0.txt')
+    sys.argv.append('./data/structure2.txt')
+    sys.argv.append('./data/words2.txt')
     main()
