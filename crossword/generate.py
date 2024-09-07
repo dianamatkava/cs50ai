@@ -142,7 +142,7 @@ class CrosswordCreator():
             if self.revise(x, y):
                 if len(self.domains[x]):
                     return False
-
+                # for z in self.crossword.neighbors():
         return True
 
     def get_arcs(self) -> list:
@@ -160,23 +160,71 @@ class CrosswordCreator():
         Return True if `assignment` is complete (i.e., assigns a value to each
         crossword variable); return False otherwise.
         """
-        raise NotImplementedError
+        for item in assignment.values():
+            if len(item) != 1:
+                return False
+        return True
 
     def consistent(self, assignment) -> bool:
         """
         Return True if `assignment` is consistent (i.e., words fit in crossword
         puzzle without conflicting characters); return False otherwise.
         """
-        raise NotImplementedError
 
-    def order_domain_values(self, var, assignment):
+        for var in assignment.keys():
+            neighbors = list(self.crossword.neighbors(var))
+            for neighbor_var in neighbors:
+                neighbor_values = assignment[neighbor_var]
+
+                if var.direction == Variable.DOWN:
+                    for assignment_value in assignment[var]:
+                        for neighbor_value in neighbor_values:
+                            if assignment_value[neighbor_var.i] != neighbor_value[var.i]:
+                                return False
+
+                if var.direction == Variable.ACROSS:
+                    for assignment_value in assignment[var]:
+                        for neighbor_value in neighbor_values:
+                            if assignment_value[neighbor_var.j] != neighbor_value[var.j]:
+                                return False
+        return True
+
+    @staticmethod
+    def get_cross_indexes(direction, var, neighbor_var) -> tuple:
+        neighbor_index, var_index = 0, 0
+        if direction == Variable.DOWN:
+            neighbor_index = neighbor_var.i
+            var_index = var.i
+
+        if direction == Variable.ACROSS:
+            neighbor_index = neighbor_var.j
+            var_index = var.j
+
+        return neighbor_index, var_index
+
+    def order_domain_values(self, var, assignment) -> list:
         """
         Return a list of values in the domain of `var`, in order by
         the number of values they rule out for neighboring variables.
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
-        raise NotImplementedError
+
+        neighbors = list(self.crossword.neighbors(var))
+
+        order_data = {}
+        for neighbor_var in neighbors:
+            neighbor_values = assignment[neighbor_var]
+
+            neighbor_index, var_index = self.get_cross_indexes(var.direction, var, neighbor_var)
+
+            for assignment_value in assignment[var]:
+                for neighbor_value in neighbor_values:
+                    if assignment_value[neighbor_index] == neighbor_value[var_index]:
+                        order_data[assignment_value] = order_data.get(assignment_value, 0) + 1
+
+        return [key for key, value in sorted(order_data.items(), key=lambda item: item[1])]
+
 
     def select_unassigned_variable(self, assignment):
         """
@@ -186,9 +234,12 @@ class CrosswordCreator():
         degree. If there is a tie, any of the tied variables are acceptable
         return values.
         """
-        raise NotImplementedError
 
-    def backtrack(self, assignment) -> dict:
+        for key, item in assignment.items():
+            if len(item) != 1:
+                return key
+
+    def backtrack(self, assignment) -> dict | None:
         """
         Using Backtracking Search, take as input a partial assignment for the
         crossword and return a complete assignment if possible to do so.
@@ -197,7 +248,20 @@ class CrosswordCreator():
 
         If no assignment is possible, return None.
         """
-        raise NotImplementedError
+
+        if not assignment:
+            assignment = self.domains
+
+        if self.assignment_complete(assignment):
+            if self.consistent(assignment):
+                return assignment
+            else:
+                return None
+
+        variable = self.select_unassigned_variable(assignment)
+        self.order_domain_values(variable, assignment)
+
+        return self.backtrack(assignment)
 
 
 def main():
