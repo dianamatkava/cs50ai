@@ -1,6 +1,6 @@
-import csv
 import sys
 
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 
@@ -59,7 +59,31 @@ def load_data(filename):
     labels should be the corresponding list of labels, where each label
     is 1 if Revenue is true, and 0 otherwise.
     """
-    raise NotImplementedError
+
+    df = pd.read_csv(filename)
+
+    month_map = {
+        'Feb': 1, 'Mar': 2, 'Apr': 3, 'May': 4, 'June': 5,
+        'Jul': 6, 'Aug': 7, 'Sep': 8, 'Oct': 9, 'Nov': 10, 'Dec': 11
+    }
+    visitor_map = {
+        'Returning_Visitor': 1, 'New_Visitor': 0, "Other": 0
+    }
+    df['Month'] = df['Month'].map(month_map)
+    df['VisitorType'] = df['VisitorType'].map(visitor_map)
+    df['Weekend'] = df['Weekend'].astype(int)
+    df['Revenue'] = df['Revenue'].astype(int)
+
+    # categories = df.select_dtypes(include='object')
+    #
+    # enc = OrdinalEncoder()
+    # enc.fit_transform(df[categories.columns])
+    # df[categories.columns] = enc.transform(df[categories.columns])
+
+    labels = df.Revenue
+    evidence = df.drop(columns=['Revenue'])
+
+    return evidence, labels
 
 
 def train_model(evidence, labels):
@@ -67,7 +91,10 @@ def train_model(evidence, labels):
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
+
+    model = KNeighborsClassifier(n_neighbors=1)
+    model.fit(evidence, labels)
+    return model
 
 
 def evaluate(labels, predictions):
@@ -85,8 +112,22 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
+    import numpy as np
+    labels = np.array(labels)
+    predictions = np.array(predictions)
+
+    TP = int(((predictions == 1) & (labels == 1)).sum())
+    TN = int(((predictions == 0) & (labels == 0)).sum())
+
+    AP = int((labels == 1).sum())
+    AN = int((labels == 0).sum())
+
+    sensitivity = TP / AP
+    specificity = TN / AN
+
+    return sensitivity, specificity
 
 
 if __name__ == "__main__":
+    sys.argv.append('./shopping.csv')
     main()
