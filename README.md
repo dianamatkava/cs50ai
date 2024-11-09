@@ -3,9 +3,11 @@
 1. [Minesweeper Game: Propositional Logic](#minesweeper-game-propositional-logic)
 2. [Nim Game AI: Reinforcement Learning using Q-Learning](#nim-game-ai-reinforcement-learning-using-q-learning)
 3. [Traffic: Deep Learning](#traffic-deep-learning)
-4. [Crossword: AC3 Optimization](#crossword-ac3-optimization)
-5. [Heredity: Bayesian Network Model](#heredity-bayesian-network-model)
-6. [PageRank](#pagerank)
+4. [Parser: NLP](#parser)
+5. [Crossword: AC3 Optimization](#crossword-ac3-optimization)
+6. [Heredity: Bayesian Network Model](#heredity-bayesian-network-model)
+7. [PageRank: Probability](#pagerank)
+8. and more
 
 
 ![Harvard CS50AI](assets/harvard-cs50ai.png)
