@@ -30,15 +30,6 @@ This project implements an AI to play the game of *Nim* using *Reinforcement Lea
 
 [Nin Game requirements](https://cs50.harvard.edu/ai/2024/projects/4/nim/)
 
-## Key Concepts
-- *State*: Represents the configuration of piles. Example: [1, 1, 3, 5] represents a state where pile 0 has 1 object, pile 1 has 1 object, pile 2 has 3 objects, and pile 3 has 5 objects.
-- *Action*: A pair (i, j) representing removing j objects from pile i. For instance, the action (3, 5) means removing 5 objects from pile 3.
-- *Q-value*: A value associated with a specific state-action pair, indicating the "quality" or potential reward of taking that action in that state.
-- *Q-learning Update*: After each move, update the Q-value for the action taken using the formula:
-
-
-Where:
-
 `Q(s,a)←Q(s,a)+α×(new_estimate−old_estimate)`
 
 - `α (alpha)` is the learning rate, controlling how much value new information.
@@ -52,6 +43,17 @@ This project uses deep learning and convolutional neural networks (CNNs) to clas
 In this project I am using TensorFlow to build a neural network for classifying road signs from images. 
 
 And the German Traffic Sign Recognition Benchmark (GTSRB) dataset, which contains thousands of labeled images of 43 different types of road signs.
+
+## Parser
+
+[Project 6. Language | Parser](https://cs50.harvard.edu/ai/2024/projects/6/parser/#parser)
+
+The parser task in AI and natural language processing (NLP) involves generating a syntactic structure, or parse tree, for a given sentence based on defined grammar rules. 
+
+This task uses NLTK to implement a context-free grammar (CFG) and a chart parser, allowing for an analysis of sentence structures. The parser identifies noun phrase chunks by breaking down sentences into their grammatical components.
+
+<img src="./assets/parsers.png" width="500">
+
 
 ## Crossword: AC3 Optimization
 [3. Optimization Crossword Specification](https://cs50.harvard.edu/ai/2024/projects/3/crossword/)
