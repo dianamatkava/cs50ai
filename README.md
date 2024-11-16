@@ -4,10 +4,11 @@
 2. [Nim Game AI: Reinforcement Learning using Q-Learning](#nim-game-ai-reinforcement-learning-using-q-learning)
 3. [Traffic: Deep Learning](#traffic-deep-learning)
 4. [Parser: NLP](#parser)
-5. [Crossword: AC3 Optimization](#crossword-ac3-optimization)
-6. [Heredity: Bayesian Network Model](#heredity-bayesian-network-model)
-7. [PageRank: Probability](#pagerank)
-8. and more
+5. [Attention Visualization: Word Prediction](#attention)
+6. [Crossword: AC3 Optimization](#crossword-ac3-optimization)
+7. [Heredity: Bayesian Network Model](#heredity-bayesian-network-model)
+8. [PageRank: Probability](#pagerank)
+9. and more ...
 
 
 ![Harvard CS50AI](assets/harvard-cs50ai.png)
@@ -55,6 +56,12 @@ The parser task in AI and natural language processing (NLP) involves generating 
 This task uses NLTK to implement a context-free grammar (CFG) and a chart parser, allowing for an analysis of sentence structures. The parser identifies noun phrase chunks by breaking down sentences into their grammatical components.
 
 <img src="./assets/parsers.png" width="500">
+
+## Attention Visualization
+
+This project leverages the BERT Transformer model to predict masked words within a given input text. Additionally, it visualizes the attention mechanism by generating layer-based attention diagrams, providing insights into how BERT attends to different parts of the input sequence.
+
+<img src="./assets/attention.png" width="500">
 
 
 ## Crossword: AC3 Optimization
