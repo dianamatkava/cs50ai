@@ -1,3 +1,4 @@
+import os
 import sys
 import tensorflow as tf
 
@@ -14,6 +15,8 @@ K = 3
 FONT = ImageFont.truetype("assets/fonts/OpenSans-Regular.ttf", 28)
 GRID_SIZE = 40
 PIXELS_PER_WORD = 200
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 
 def main():
@@ -45,9 +48,10 @@ def get_mask_token_index(mask_token_id, inputs):
     Return the index of the token with the specified `mask_token_id`, or
     `None` if not present in the `inputs`.
     """
-    # TODO: Implement this function
-    raise NotImplementedError
-
+    try:
+        return list(inputs['input_ids'].numpy()[0]).index(mask_token_id)
+    except ValueError:
+        return None
 
 
 def get_color_for_attention_score(attention_score):
@@ -55,9 +59,8 @@ def get_color_for_attention_score(attention_score):
     Return a tuple of three integers representing a shade of gray for the
     given `attention_score`. Each value should be in the range [0, 255].
     """
-    # TODO: Implement this function
-    raise NotImplementedError
-
+    value = int(255 * attention_score)
+    return (value, ) * 3
 
 
 def visualize_attentions(tokens, attentions):
@@ -71,12 +74,15 @@ def visualize_attentions(tokens, attentions):
     (starting count from 1).
     """
     # TODO: Update this function to produce diagrams for all layers and heads.
-    generate_diagram(
-        1,
-        1,
-        tokens,
-        attentions[0][0][0]
-    )
+
+    for layer_idx, layer in enumerate(attentions):
+        for head_idx, head in enumerate(layer[0]):
+            generate_diagram(
+                layer_idx + 1,
+                head_idx + 1,
+                tokens,
+                head.numpy()
+            )
 
 
 def generate_diagram(layer_number, head_number, tokens, attention_weights):

@@ -1,6 +1,6 @@
 # Analysis
 
-## Layer TODO, Head TODO
+## Layer 7, Head 6
 
 TODO
 
@@ -8,7 +8,7 @@ Example Sentences:
 - TODO
 - TODO
 
-## Layer TODO, Head TODO
+## Layer 8, Head 11
 
 TODO
 
